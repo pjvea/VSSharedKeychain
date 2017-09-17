@@ -74,17 +74,19 @@ class VSSharedKeychain: NSObject {
     }
     
     @objc static func deleteSharedKeychainItem(itemKey: String) {
-        let key = itemKey + self.environmentKeyPrefix
-        let queryDelete: [String: AnyObject] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key as AnyObject,
-            kSecAttrAccessGroup as String: self.keychainAccessGroupName as AnyObject
-        ]
-        
-        let resultCodeDelete = SecItemDelete(queryDelete as CFDictionary)
-        
-        if resultCodeDelete != noErr {
-            print("Error deleting from Keychain: \(resultCodeDelete)")
-        }
+        if self.findSharedKeychainItem(itemKey: itemKey) != nil {
+            let key = itemKey + self.environmentKeyPrefix
+            let queryDelete: [String: AnyObject] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrAccount as String: key as AnyObject,
+                kSecAttrAccessGroup as String: self.keychainAccessGroupName as AnyObject
+            ]
+            
+            let resultCodeDelete = SecItemDelete(queryDelete as CFDictionary)
+            
+            if resultCodeDelete != noErr {
+                print("Error deleting from Keychain: \(resultCodeDelete)")
+            }
+        }        
     }
 }
