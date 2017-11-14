@@ -24,17 +24,17 @@ VSSharedKeychain.keychainAccessGroupName = "THIS_IS_YOUR_SHARED_KEYCHAIN_GROUP_N
 Use the class method `findSharedKeychainItem` to find and return a String value for a key.
 
 ```
-let value = VSSharedKeychain.findSharedKeychainItem(itemKey: "username")
+let value = VSSharedKeychain.findSharedKeychainItem(itemKey: "username", serviceName: "serviceName")
 ```
 
 Use the class method `addSharedKeychainItem` to add a value for a key.
 
 ```
-VSSharedKeychain.addSharedKeychainItem(itemKey: "username")
+VSSharedKeychain.addSharedKeychainItem(itemKey: "username", itemValue: "value", serviceName: "serviceName")
 ```
 
 Use the class method `deleteSharedKeychainItem` to delete a value for a key.
 
 ```
-VSSharedKeychain.deleteSharedKeychainItem(itemKey: "username")
+VSSharedKeychain.deleteSharedKeychainItem(itemKey: "username", serviceName: "serviceName")
 ```
