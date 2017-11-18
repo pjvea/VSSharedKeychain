@@ -45,12 +45,12 @@ open class VSSharedKeychain: NSObject {
             case .itemNotFound:
                 break
             default:
-                inform("Error parsing keychain result: \(err)")
+                print("Error parsing keychain result: \(err)")
             }
         }
         
         guard let resultVal = result as? NSData, let keyValue = NSString(data: resultVal as Data, encoding: String.Encoding.utf8.rawValue) as? String else {
-            inform("Error parsing keychain result: \(resultCodeLoad)")
+            print("Error parsing keychain result: \(resultCodeLoad)")
             return nil
         }
         return keyValue
@@ -62,7 +62,7 @@ open class VSSharedKeychain: NSObject {
         self.deleteSharedKeychainItem(itemKey: itemKey, serviceName: serviceName)
         
         guard let valueData = itemValue.data(using: String.Encoding.utf8) else {
-            inform(KeychainError.invalidInput.localizedDescription)
+            print(KeychainError.invalidInput.localizedDescription)
             return
         }
         
@@ -78,7 +78,7 @@ open class VSSharedKeychain: NSObject {
         let resultCode = SecItemAdd(queryAdd as CFDictionary, nil)
         
         if let err = mapResultCode(result: resultCode) {
-            inform("Error saving to Keychain: \(err)")
+            print("Error saving to Keychain: \(err)")
         }
     }
     
@@ -92,7 +92,7 @@ open class VSSharedKeychain: NSObject {
         let resultCodeDelete = SecItemDelete(queryDelete as CFDictionary)
         
         if let err = mapResultCode(result: resultCodeDelete) {
-            inform("Error deleting to Keychain: \(err)")
+            print("Error deleting to Keychain: \(err)")
         }
     }
     
