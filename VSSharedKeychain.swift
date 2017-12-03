@@ -59,7 +59,7 @@ open class VSSharedKeychain: NSObject {
     @objc public static func addSharedKeychainItem(itemKey: String, itemValue: String, serviceName: String) {
         
         let key = itemKey + self.environmentKeyPrefix
-        self.deleteSharedKeychainItem(itemKey: itemKey, serviceName: serviceName)
+        self.deleteSingleSharedKeychainItem(itemKey: itemKey, serviceName: serviceName)
         
         guard let valueData = itemValue.data(using: String.Encoding.utf8) else {
             print(KeychainError.invalidInput.localizedDescription)
@@ -94,6 +94,56 @@ open class VSSharedKeychain: NSObject {
         if let err = mapResultCode(result: resultCodeDelete) {
             print("Error deleting to Keychain: \(err)")
         }
+    }
+    
+    @objc public static func deleteSingleSharedKeychainItem(itemKey: String, serviceName: String) {
+        let key = itemKey + self.environmentKeyPrefix
+        let queryDelete: [String: AnyObject] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key as AnyObject,
+            kSecAttrAccessible as String: kSecAttrAccessibleAlways,
+            kSecAttrAccessGroup as String: self.keychainAccessGroupName as AnyObject,
+            kSecAttrService as String: serviceName  as AnyObject
+        ]
+        
+        let resultCodeDelete = SecItemDelete(queryDelete as CFDictionary)
+        
+        if let err = mapResultCode(result: resultCodeDelete) {
+            print("Error deleting to Keychain: \(err)")
+        }
+    }
+    
+    @objc public static func getAllKeyChainItems(for serviceName: String) -> [String:String] {
+        var query: [String: Any] = [
+            kSecClass as String : kSecClassGenericPassword,
+            kSecReturnData as String  : kCFBooleanTrue,
+            kSecReturnAttributes as String : kCFBooleanTrue,
+            kSecReturnRef as String : kCFBooleanTrue,
+            kSecAttrAccessGroup as String: self.keychainAccessGroupName as AnyObject,
+            kSecMatchLimit as String : kSecMatchLimitAll,
+            kSecAttrService as String: serviceName  as AnyObject
+        ]
+        
+        var result: AnyObject?
+        
+        let lastResultCode = withUnsafeMutablePointer(to: &result) {
+            SecItemCopyMatching(query as CFDictionary, UnsafeMutablePointer($0))
+        }
+        
+        var values = [String:String]()
+        if let err = mapResultCode(result: lastResultCode) {
+            print("Error parsing keychain result: \(err)")
+        } else {
+            let array = result as? Array<Dictionary<String, Any>>
+            
+            for item in array! {
+                let key : String = item[kSecAttrAccount as String] as! String
+                let value : Data = item[kSecValueData as String] as! Data
+                values[key] = String(data: value, encoding:.utf8)
+            }
+        }
+        
+        return values
     }
     
     private enum KeychainError: Error {
